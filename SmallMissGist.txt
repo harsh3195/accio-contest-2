@@ -1,0 +1,51 @@
+// * Use environment variables to perform read/write to result files
+// * process.env.TEST_FILE_NAME is the name of THIS file (the unit tests you're writing - use it as compile command)
+// * process.env.USER_CODE_DIR is the directory path of user's code. Use it to import/run user specific code
+// * process.env.PUBLIC_PORT is the publicly accessible port on localhost for user's server. Use it to perform HTTP requests to user server
+// * process.env.IO_TEST_OUTPUT_FILE is the name of the file where results of IO tests should be put
+// * process.env.UNIT_TEST_OUTPUT_FILE is the name of the file where results of UNIT tests should be put
+// * The results file should have a JSON array with ONLY "true" or "false" values (booleans) as elements having one-to-one correspondance to challenges you design
+
+const { exec } = require('child_process')
+const fs = require('fs')
+
+const stdin = `
+3
+85
+-47 1 4 49 -18 10 26 18 -11 -38 -24 36 44 -11 45 20 -16 28 17 -49 47 -48 -33 42 2 6 -49 30 36 -9 15 39 -6 -31 -10 -21 -19 -33 47 21 31 25 -41 -23 17 6 47 3 36 15 -44 33 -31 -26 -22 21 -18 -21 -47 -31 20 18 -42 -35 -10 -1 46 -27 -32 -5 -4 1 -29 5 29 38 14 -22 -9 0 43 -50 -16 14 -26
+11
+0 2 4 3 5 6 7 8 9 10 11
+10
+-2 1 -3 -45 324 234 234109 -435 -5 234
+`.trim()
+
+const expectedOutput = `
+7
+1
+2
+`
+	.trim()
+	.split('\n')
+
+const java = exec(`cd ${process.env.USER_CODE_DIR} && javac SmallMiss.java && java SmallMiss`)
+java.stdin.write(stdin + '\n')
+
+let _realOutput = ''
+
+java.stdout.on('data', (data) => {
+	_realOutput += data.toString()
+})
+
+java.stdout.on('close', () => {
+	const results = []
+	const realOutput = _realOutput.trim().split('\n')
+
+	for (let i = 0; i < expectedOutput.length; i++) {
+		const expectedRow = expectedOutput[i]
+		const actualRow = realOutput[i]
+		results.push(expectedRow === actualRow)
+	}
+
+	fs.writeFileSync(process.env.UNIT_TEST_OUTPUT_FILE, JSON.stringify(results))
+	process.exit(0)
+})
