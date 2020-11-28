@@ -4,24 +4,18 @@ import java.util.*;
 import java.lang.*;
 
 class NMeetings {
-    public static void main(String args[]) throws IOException {
-        BufferedReader br =
-            new BufferedReader(new InputStreamReader(System.in));
-        int t = Integer.parseInt(br.readLine().trim());
+    public static void main(String args[]){
+        Scanner sc=new Scanner(System.in);
+                int t=sc.nextInt();
 
         while (t-- > 0) {
-            String inputLine[] = br.readLine().trim().split(" ");
-            int n = Integer.parseInt(inputLine[0]);
-
+            
+            int n = sc.nextInt();
             int start[] = new int[n];
             int end[] = new int[n];
-
-            inputLine = br.readLine().trim().split(" ");
             for (int i = 0; i < n; i++)
-                start[i] = Integer.parseInt(inputLine[i]);
-
-            inputLine = br.readLine().trim().split(" ");
-            for (int i = 0; i < n; i++) end[i] = Integer.parseInt(inputLine[i]);
+                start[i] = sc.nextInt();
+            for (int i = 0; i < n; i++) end[i] = sc.nextInt();;
             new Meeting().maxMeetings(start, end, n);
             System.out.println();
         }
